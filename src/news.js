@@ -1,12 +1,44 @@
 
 export default class News {
 	
-	constructor(url,name) {
-		this.req = new Request(url);
+	constructor(typeOfRequest,url) {
+		//proxy
+		let paramReguest = {};
+
+		let proxy = new Proxy(paramReguest, {
+			get(target, prop) {
+			console.log(`Чтение ${prop}`);
+			return target[prop];
+		},
+		set(target, prop, value) {
+			console.log(`Запись ${prop} ${value}`);
+			target[prop] = value;
+			return true;
+		}
+		});
+		proxy.typeOfRequest = typeOfRequest;
+		proxy.url = url;
+		//factory
+		this.req;
+        if (typeOfRequest === "request") {
+            this.req = new Request(url);
+			this.typeOfRequest = "request";
+        }
+		else if (typeOfRequest === "get"){
+			this.req = new XMLHttpRequest();
+			this.typeOfRequest = "get";
+		}
+		else if (typeOfRequest === "post"){
+			this.req = new XMLHttpRequest();
+			this.typeOfRequest = "post";
+		}
 	}
+	
+	
 			
 	
 	printSource(){
+		if(this.typeOfRequest === "request"){
 		let myList = document.querySelector('.select.new');
 		fetch(this.req).then(function(response) {
 			return response.json().then(function(json) {
@@ -19,8 +51,10 @@ export default class News {
 			});
 		});
 	}
+	}
 	
-	printNews(){	
+	printNews(){
+        if(this.typeOfRequest === "request"){		
 	    let select = document.querySelector('.select.new');
 		select.addEventListener('change', function() {
 			if(select.value){
@@ -43,7 +77,7 @@ export default class News {
 				});
 			}
 		});		
-	}
+	}}
 
 	
 };
